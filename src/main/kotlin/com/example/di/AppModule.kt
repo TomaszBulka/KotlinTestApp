@@ -6,7 +6,6 @@ import com.example.respositories.GeoDataRepository
 import com.example.routes.CountryRouter
 import com.example.services.GeoDataService
 import com.example.utils.BatchSaver
-import com.example.utils.BatchSaverProvider
 import com.google.inject.AbstractModule
 import javax.sql.DataSource
 import com.google.inject.Provides
