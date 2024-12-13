@@ -25,42 +25,64 @@ class CountryRouter @Inject constructor(
         authenticate("auth-jwt") {
             get("/countrystats") {
                 try {
-                    val startDateParam = call.request.queryParameters["startDate"]
-                    val endDateParam = call.request.queryParameters["endDate"]
-                    val groupLocalParam = call.request.queryParameters["groupLocal"]
+                    val startDateParam = call.request.queryParameters["startDate"] as String
+                    val endDateParam = call.request.queryParameters["endDate"] as String
+                    val groupLocalParam = call.request.queryParameters["groupLocal"] as String
 
-                    val dto = GetCountryStatsDTO(startDateParam, endDateParam, groupLocalParam)
-                    val violations = validator.validate(dto)
+                    try {
+                        val dto = GetCountryStatsDTO(startDateParam, endDateParam, groupLocalParam)
+                        val violations = validator.validate(dto)
 
-                    if (violations.isNotEmpty()) {
-                        throw ConstraintViolationException(violations)
+                        if (violations.isNotEmpty()) {
+                            throw ConstraintViolationException(violations)
+                        }
+
+                    } catch (e: ConstraintViolationException) {
+                        call.respond(
+                            HttpStatusCode.BadRequest,
+                            mapOf("errors" to e.constraintViolations.map { it.message })
+                        )
                     }
 
-                } catch (e: ConstraintViolationException) {
+                    val geoData = geoDataService.getGeoDataByCountry(startDateParam, endDateParam, groupLocalParam)
+
+                    if (geoData.isEmpty()) {
+                        call.respond(HttpStatusCode.NoContent)
+                    } else {
+                        call.respond(HttpStatusCode.OK, geoData)
+                    }
+                } catch (e: Error) {
                     call.respond(
-                        HttpStatusCode.BadRequest,
-                        mapOf("errors" to e.constraintViolations.map { it.message })
+                        HttpStatusCode.InternalServerError,
+                        mapOf("message" to "An unexpected error occurred. Please try again later.")
                     )
                 }
             }
 
             post("/geodata") {
-                val geoDataRequest = try {
-                    call.receive<GeoDataDTO>()
-                } catch (e: Exception) {
-                    call.respond(HttpStatusCode.BadRequest, "Invalid request payload")
-                    return@post
+                try {
+                    val geoDataRequest = try {
+                        call.receive<GeoDataDTO>()
+                    } catch (e: Exception) {
+                        call.respond(HttpStatusCode.BadRequest, "Invalid request payload")
+                        return@post
+                    }
+
+                    val localDateTime = LocalDateTime.ofInstant(
+                        Instant.ofEpochSecond(geoDataRequest.timestamp),
+                        ZoneOffset.UTC
+                    )
+                    val clientIp = call.request.origin.remoteAddress
+
+                    geoDataService.saveGeoData(geoDataRequest, clientIp)
+
+                    call.respond(HttpStatusCode.Accepted, "GeoData added to batch queue")
+                } catch (e: Error) {
+                    call.respond(
+                        HttpStatusCode.InternalServerError,
+                        mapOf("message" to "An unexpected error occurred. Please try again later.")
+                    )
                 }
-
-                val localDateTime = LocalDateTime.ofInstant(
-                    Instant.ofEpochSecond(geoDataRequest.timestamp),
-                    ZoneOffset.UTC
-                )
-                val clientIp = call.request.origin.remoteAddress
-
-                geoDataService.saveGeoData(geoDataRequest, clientIp)
-
-                call.respond(HttpStatusCode.Accepted, "GeoData added to batch queue")
             }
         }
     }

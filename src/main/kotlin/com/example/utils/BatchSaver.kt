@@ -39,6 +39,7 @@ class BatchSaver<T>(
     }
 
     fun stop() {
+        saveBatch()
         running = false
     }
 }

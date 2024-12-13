@@ -1,10 +1,8 @@
 package com.example.model
 
-import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.javatime.datetime
-
 
 object GeoData: Table() {
     val id = integer("id").autoIncrement()
