@@ -22,14 +22,4 @@ class JwtService (
             .withExpiresAt(Date(System.currentTimeMillis() + tokenValidityMillis))
             .sign(algorithm)
     }
-
-    companion object {
-        fun create(argsMap: Map<String, String>): JwtService {
-            return JwtService(
-                jwtAudience = argsMap["jwtAudience"] as String,
-                jwtDomain = argsMap["jwtDomain"] as String,
-                jwtSecret = argsMap["jwtSecret"] as String,
-            )
-        }
-    }
 }
