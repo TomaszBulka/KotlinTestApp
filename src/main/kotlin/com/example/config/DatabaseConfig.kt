@@ -7,14 +7,13 @@ data class DatabaseConfig(
     val name: String
 ) {
     companion object {
-        fun load(): DatabaseConfig {
-            val config = ConfigFactory.load("application.conf").getConfig("database")
+        fun load(config: Map<String, String>): DatabaseConfig {
 
             return DatabaseConfig(
-                host = config.getString("host"),
-                username = config.getString("username"),
-                password = config.getString("password"),
-                name = config.getString("name")
+                host = config["dbHost"] as String,
+                username = config["dbUsername"] as String,
+                password = config["dbPassword"] as String,
+                name = config["dbName"] as String
             )
         }
     }

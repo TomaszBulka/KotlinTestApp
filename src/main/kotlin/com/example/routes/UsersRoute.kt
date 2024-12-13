@@ -14,7 +14,7 @@ import org.mindrot.jbcrypt.BCrypt
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.update
 
-fun Route.userRouting() {
+fun Route.userRouting(jwtService: JwtService) {
     val validator: Validator = Validation.buildDefaultValidatorFactory().validator
 
         post("/register") {
@@ -26,7 +26,7 @@ fun Route.userRouting() {
             }
 
             val hashedPassword = BCrypt.hashpw(userInfo.password, BCrypt.gensalt())
-            val jwtToken = JwtService.generateJwtToken(userInfo.email)
+            val jwtToken = jwtService.generateJwtToken(userInfo.email)
 
             transaction {
                 User.insert {
@@ -68,7 +68,7 @@ fun Route.userRouting() {
                 return@transaction
             }
 
-            jwtToken = JwtService.generateJwtToken(loginRequest.email)
+            jwtToken = jwtService.generateJwtToken(loginRequest.email)
 
             User.update({ User.email eq loginRequest.email }) {
                 it[access_token] = jwtToken!!
