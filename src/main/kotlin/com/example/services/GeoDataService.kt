@@ -74,4 +74,8 @@ class GeoDataService @Inject constructor(
             }
         }
     }
+
+    fun shutdown() {
+        batchSaver.stop()
+    }
 }
