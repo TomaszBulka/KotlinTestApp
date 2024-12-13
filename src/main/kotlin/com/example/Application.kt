@@ -21,7 +21,14 @@ fun Application.module(injector: Injector) {
 }
 
 fun main(args: Array<String>) {
-    val injector: Injector = Guice.createInjector(AppModule())
+    val config = args
+        .mapNotNull {
+            val split = it.split("=")
+            if (split.size == 2) split[0] to split[1] else null
+        }
+        .toMap()
+
+    val injector: Injector = Guice.createInjector(AppModule(config))
 
     embeddedServer(Netty, port = 8080) {
         module(injector)
