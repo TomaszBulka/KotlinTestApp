@@ -3,6 +3,7 @@ import jakarta.validation.constraints.Pattern
 import jakarta.validation.constraints.Positive
 import kotlinx.serialization.Serializable
 
+// FIX remove validation from annotation and implement it in methods
 @Serializable
 data class GeoDataDTO(
     @field:NotBlank(message = "Country must not be blank")

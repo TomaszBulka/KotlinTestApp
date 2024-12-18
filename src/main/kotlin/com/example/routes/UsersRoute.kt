@@ -15,6 +15,7 @@ import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.update
 
 fun Route.userRouting() {
+    // FIX: validator is not used
     val validator: Validator = Validation.buildDefaultValidatorFactory().validator
 
         post("/register") {
@@ -53,6 +54,7 @@ fun Route.userRouting() {
         var jwtToken: String? = null
         var errorResponse: Pair<HttpStatusCode, String>? = null
 
+        // FIX: the logic of the work with database should be moved to dedicated service
         transaction {
             val user = User.selectAll().where{User.email eq loginRequest.email } .singleOrNull()
 
@@ -75,6 +77,7 @@ fun Route.userRouting() {
             }
         }
 
+        // FIX: avoid of using !! in your code, it generates Null Pointer Exception which we would like to avoid
         if (errorResponse != null) {
             call.respond(errorResponse!!.first, errorResponse!!.second)
         } else {

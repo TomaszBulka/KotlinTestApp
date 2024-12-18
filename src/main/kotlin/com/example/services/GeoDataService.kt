@@ -13,6 +13,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import java.time.*
 
 class GeoDataService @Inject constructor(
+    // FIX: the repository is not used
     private val repository: GeoDataRepository,
     private val batchSaver: BatchSaver<GeoDataEntity>
 ) {
@@ -33,6 +34,8 @@ class GeoDataService @Inject constructor(
     }
 
     fun getGeoDataByCountry(
+        // FIX: much better if we can accept actual types here LocalDate, LocalDate, Boolean
+        // it will improve readability
         startDateParam: String,
         endDateParam: String,
         groupLocalParam: String
@@ -49,6 +52,7 @@ class GeoDataService @Inject constructor(
             }
 
             rawData
+                //FIX: you need to group by date(just date without time info) rather than datetime
                 .groupBy { it[GeoData.timestamp] to it[GeoData.country] }
                 .map { (key, value) ->
                     GeoDataResponse(

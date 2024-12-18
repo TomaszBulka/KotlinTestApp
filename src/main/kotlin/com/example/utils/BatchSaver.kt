@@ -17,6 +17,8 @@ class BatchSaver<T>(
     }
 
     fun start() {
+        // FIX: use kotlin-like style to schedule periodic tasks
+        // https://www.baeldung.com/kotlin/schedule-repeating-task
         running = true
         Thread {
             while (running) {

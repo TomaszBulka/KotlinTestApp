@@ -6,6 +6,7 @@ data class DatabaseConfig(
     val password: String,
     val name: String
 ) {
+    // FIX: move this method to some utils, don't need to have any complex logic in data classes
     companion object {
         fun load(): DatabaseConfig {
             val config = ConfigFactory.load("application.conf").getConfig("database")

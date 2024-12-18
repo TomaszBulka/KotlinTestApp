@@ -25,15 +25,19 @@ class CountryRouter @Inject constructor(
         authenticate("auth-jwt") {
             get("/countrystats") {
                 try {
+                    // FIX: use toString() method rather than casting to String
                     val startDateParam = call.request.queryParameters["startDate"] as String
                     val endDateParam = call.request.queryParameters["endDate"] as String
                     val groupLocalParam = call.request.queryParameters["groupLocal"] as String
 
                     try {
+                        // FIX: where you use this dto? seems only for validation?
                         val dto = GetCountryStatsDTO(startDateParam, endDateParam, groupLocalParam)
                         val violations = validator.validate(dto)
 
                         if (violations.isNotEmpty()) {
+                            // FIX: it's a bad practise to throw exception in case of non exceptional case
+                            // here we could just respond with errors and return
                             throw ConstraintViolationException(violations)
                         }
 
@@ -51,6 +55,8 @@ class CountryRouter @Inject constructor(
                     } else {
                         call.respond(HttpStatusCode.OK, geoData)
                     }
+                    // FIX: for any exception, it's better to catch just Exception, because Error could be related to JVM
+                    // errors and don't need to catch these cases at all
                 } catch (e: Error) {
                     call.respond(
                         HttpStatusCode.InternalServerError,
@@ -68,6 +74,7 @@ class CountryRouter @Inject constructor(
                         return@post
                     }
 
+                    // FIX: This parameter is not used
                     val localDateTime = LocalDateTime.ofInstant(
                         Instant.ofEpochSecond(geoDataRequest.timestamp),
                         ZoneOffset.UTC

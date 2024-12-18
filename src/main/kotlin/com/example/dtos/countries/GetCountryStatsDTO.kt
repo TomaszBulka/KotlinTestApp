@@ -10,6 +10,8 @@ data class GetCountryStatsDTO(
         regexp = "\\d{4}-\\d{2}-\\d{2}",
         message = "startDate must be in the format YYYY-MM-DD"
     )
+    // FIX: it's better that class field will have already specific type which is required for next actions
+    // LocalDate could work good for it
     val startDate: String?,
 
     @field:NotNull(message = "endDate must not be null")
